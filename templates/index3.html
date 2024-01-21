@@ -1,3 +1,5 @@
+<!-- this is for realtime changes / live updates in plot
+ -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,6 +11,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap"
     />
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> <!-- Include jQuery for AJAX requests -->
     <style>
       body {
         font-family: "Poppins", sans-serif;
@@ -75,7 +78,25 @@
       {% endif %}
     </div>
     <script>
-                 var cpuGauge = {
+      function updateGauges() {
+        // Use jQuery to make an AJAX request to fetch updated data from the server
+        $.ajax({
+          url: "/", // Update the URL to match your Flask route
+          type: "GET",
+          dataType: "json",
+          success: function(data) {
+            // Update the gauge values with the new data
+            Plotly.update('cpu-gauge', {value: data.cpu_percent});
+            Plotly.update('mem-gauge', {value: data.mem_percent});
+          },
+          error: function(error) {
+            console.error("Error fetching data:", error);
+          }
+        });
+      }
+
+      // Initial plot setup
+            var cpuGauge = {
               type: "indicator",
               mode: "gauge+number",
               value: {{ cpu_percent }},
@@ -121,11 +142,14 @@
               }
           };
 
-          var cpuGaugeLayout = { title: { text: "CPU Utilization", font: { size: 18 } } };
-          var memGaugeLayout = { title: { text: "Memory Utilization", font: { size: 18 } } };
+      var cpuGaugeLayout = { title: { text: "CPU Utilization", font: { size: 18 } } };
+      var memGaugeLayout = { title: { text: "Memory Utilization", font: { size: 18 } } };
 
       Plotly.newPlot('cpu-gauge', [cpuGauge], { ...cpuGaugeLayout, height: 500, width: 500 });
       Plotly.newPlot('mem-gauge', [memGauge], { ...memGaugeLayout, height: 500, width: 500 });
+
+      // Set up interval for real-time updates
+      setInterval(updateGauges, 1000); // Adjust the interval (in milliseconds) as needed
     </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 import psutil
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
@@ -11,7 +11,13 @@ def index():
     if cpu_percent > 80 or mem_percent > 80:
         Message = "High CPU or Memory Utilization detected. Please scale up"
 
-    return render_template("index.html", cpu_percent=cpu_percent, mem_percent=mem_percent, message=Message)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Return JSON data for AJAX requests
+        return jsonify(cpu_percent=cpu_percent, mem_percent=mem_percent, message=Message)
+    else:
+        # Render HTML template for non-AJAX requests
+        return render_template("index.html", cpu_percent=cpu_percent, mem_percent=mem_percent, message=Message)
+
 
 
 if __name__=="__main__":

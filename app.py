@@ -11,7 +11,7 @@ def index():
     if cpu_percent > 80 or mem_percent > 80:
         Message = "High CPU or Memory Utilization detected. Please scale up"
 
-    return render_template("index.html")
+    return render_template("index.html", cpu_percent=cpu_percent, mem_percent=mem_percent, message=Message)
 
 
 if __name__=="__main__":
